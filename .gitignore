@@ -1,13 +1,16 @@
+# Environment variables
+.env
+.env.*
+
 # Virtual Environment
 venv/
 env/
+.venv/
 
-# Python
+# Python cache
 __pycache__/
-*.pyc
-
-# Environment variables
-.env
+*.py[cod]
+*$py.class
 
 # IDE
 .vscode/
@@ -15,3 +18,17 @@ __pycache__/
 
 # OS files
 .DS_Store
+Thumbs.db
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+
+# Build
+build/
+dist/
+*.egg-info/
