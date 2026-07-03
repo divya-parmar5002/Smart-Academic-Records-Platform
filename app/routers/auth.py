@@ -13,7 +13,9 @@ from app.schemas.user_schema import (
 from app.core.security import (
     get_password_hash,
     verify_password,
-    create_access_token
+    create_access_token,
+    create_refresh_token,
+    get_token_hash
 )
 from app.core.redis_service import(save_registration_data,registration_exists,get_registration_data,delete_registration_data,save_otp,get_otp,delete_otp,start_cooldown,cooldown_exists)
 from app.core.otp import generate_otp, hash_otp
@@ -248,22 +250,14 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
     #Create access token
     access_token = create_access_token(
-        data={
-            "sub":user.email,
-            "role":user.role.value,
-            "user_id":user.user_id
-        }
+       user_id=user.user_id,
+       email=user.email,
+       role=user.role.value
     )
-    return{
-        "message":"Login successful",
-        "user":{
-            "user_id":user.user_id,
-            "email":user.email,
-            "role":user.role.value
-        },
-        "access_token":access_token,
-        "token_type":"bearer"
-    }
-
+    
+    refresh_token = create_refresh_token(
+       user_id = user.user_id,
+       email = user.email
+   )
     
 

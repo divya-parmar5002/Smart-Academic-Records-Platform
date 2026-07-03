@@ -90,6 +90,12 @@ class User(Base):
         uselist=False
     )
 
+    sessions = relationship(
+        "UserSession",
+        back_populates="user",
+        cascade="all,delete-orphan"
+    )
+
 # =========================
 # DEPARTMENTS TABLE
 # =========================
@@ -154,6 +160,61 @@ class Teacher(Base):
         cascade="all, delete-orphan"
     )
 
+# =========================
+# User Session
+# =========================
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+
+    session_id = Column(Integer, primary_key=True, index=True)
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    refresh_token_hash = Column(
+        String,
+        nullable=False
+    )
+
+    device_name = Column(
+        String,
+        nullable=False
+    )
+
+    device_type = Column(
+        String,
+        nullable=False
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True,
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now()
+    )
+
+    last_used_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now()
+    )
+
+    expires_at = Column(
+        DateTime(timezone=True),
+        nullable=False
+    )
+
+    user = relationship(
+        "User",
+        back_populates="sessions"
+    )
+   
 
 # =========================
 # SUBJECTS TABLE

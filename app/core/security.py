@@ -1,12 +1,13 @@
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,timezone
+from uuid import uuid4
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.db.models import User
-from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.core.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES,REFRESH_TOKEN_EXPIRE_DAYS
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,16 +25,68 @@ def get_password_hash(password: str):
 def verify_password(plain_password: str, hashed_password: str):
     return pwd_context.verify(plain_password, hashed_password)
 
+def generate_jti():
+    return str(uuid4())
 
-# 🎟️ Create JWT token
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
+#Create Token
+def create_access_token(
+        *,
+        user_id: int,
+        email: str,
+        role: str
+):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": email,
+        "user_id": user_id,
+        "role": role,
+        "type": "access",
+        "iat": now,
+        "exp": now + timedelta(
+            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+        ),
+        "jti": generate_jti()
+    }
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
 
+def create_refresh_token(
+        *,
+        user_id: int,
+        email: str
+):
+    now = datetime.now(timezone.utc)
+    payload ={
+        "sub": email,
+        "user_id": user_id,
+        "type": "refresh",
+        "iat": now,
+        "exp": now + timedelta(
+            days=REFRESH_TOKEN_EXPIRE_DAYS
 
+        ),
+        "jti": generate_jti()
+    }
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
+
+def get_token_hash(token: str):
+    return pwd_context.hash(token)
+
+def verify_token_hash(
+        plain_token: str,
+        hashed_token: str
+):
+    return pwd_context.verify(
+        plain_token,
+        hashed_token
+    )
 # 🔓 Decode JWT token
 def decode_access_token(token: str):
     try:
