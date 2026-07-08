@@ -23,7 +23,24 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str    
 
+class LogoutRequest(BaseModel):
+    refresh_token: str    
+
+class ForgetPasswordRequest(BaseModel):
+    email: EmailStr
+
+class VerifyForgetPasswordOTPRequest(BaseModel):
+    email: EmailStr
+    otp: str    
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    otp: str
+    new_password: str
+    confirm_password: str
 
 
 

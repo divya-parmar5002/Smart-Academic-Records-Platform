@@ -88,7 +88,7 @@ def verify_token_hash(
         hashed_token
     )
 # 🔓 Decode JWT token
-def decode_access_token(token: str):
+def decode_token(token: str):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload

@@ -25,3 +25,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT",6379))
 REDIS_DB = int(os.getenv("REDIS_DB",0))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
 
+LOGIN_MAX_ATTEMPTS = 5
+LOGIN_LOCK_TIME =300
+
+
